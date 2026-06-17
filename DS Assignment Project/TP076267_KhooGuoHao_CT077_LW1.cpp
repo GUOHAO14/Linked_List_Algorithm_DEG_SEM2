@@ -1,17 +1,22 @@
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 struct student {
-	string student_id, full_name, contact_num;
-	int year_of_study;
+	string id, fullName, programmeCode, contactNum;
+	int yearOfStudy;
 	double cgpa;
 	struct student* next;
 
-	student(string student_id, string full_name, int year_of_study, double cgpa) {
-		this->student_id = student_id;
-		this->full_name = full_name;
-		this->year_of_study = year_of_study;
+	student(string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
+		this->id = id;
+		this->fullName = fullName;
+		this->programmeCode = programmeCode;
+		this->yearOfStudy = yearOfStudy;
 		this->cgpa = cgpa;
+		this->contactNum = contactNum;
 		next = nullptr;
 	}
 };
@@ -23,12 +28,16 @@ private:
 	int nodeCount;
 public:
 	Student() {
-		head, tail = nullptr;
+		head = tail = nullptr;
 		nodeCount = 0;
 	}
 
-	void insertFront(int id, string name, int age) {
-		struct student* newNode = new student(id, name, age);
+	int printNodeCount() {
+		return nodeCount;
+	}
+
+	void insertFront(string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
+		struct student* newNode = new student(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
 
 		if (head == nullptr) {
 			head = tail = newNode;
@@ -41,8 +50,8 @@ public:
 		newNode = nullptr;
 	}
 
-	void insertRear(int id, string name, int age) {
-		struct student* newNode = new student(id, name, age);
+	void insertRear(string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
+		struct student* newNode = new student(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
 
 		if (head == nullptr) {
 			head = tail = newNode;
@@ -55,16 +64,15 @@ public:
 		newNode = nullptr;
 	}
 
-	struct student* deleteFront() {
+	void deleteFront() {
 		if (head == nullptr) {
 			cout << "Cannot delete from an empty list." << endl;
-
+			return;
 		}
 		else {
 			struct student* deleteNode = head;
 
-			if (head->next == nullptr) {
-				//head == tail --> one element in the list, since both pointing to the same element
+			if (head->next == nullptr) { // one node
 				head = tail = nullptr;
 			}
 			else {
@@ -72,19 +80,25 @@ public:
 				deleteNode->next = nullptr;
 			}
 			nodeCount--;
-			return deleteNode;
+			delete deleteNode;
 		}
-		return nullptr;
 	}
 
-	struct student* deleteRear() {
+	void deleteRear() {
 
 		if (head == nullptr) {
 			cout << "Cannot delete from an empty list." << endl;
+			return;
+		}
+		struct student* deleteNode;
 
+		if (head == tail) { // one node
+			deleteNode = head;
+			head = tail = nullptr;
 		}
 		else {
-			struct student* deleteNode = head, * prev = head;
+			struct student* prev = head;
+			deleteNode = head;
 
 			while (deleteNode != tail) {
 				prev = deleteNode;
@@ -92,36 +106,49 @@ public:
 			}
 
 			tail = prev;
-			prev->next = nullptr;
-			nodeCount--;
-			return deleteNode;
+			tail->next = nullptr;
 		}
 
-		return nullptr;
+		nodeCount--;
+		delete deleteNode;
 	}
 
-	struct student* deleteId(int id) {
-		struct student* deleteNode = head, * prev = head;
+	void deleteId(string id) {
+		if (head == nullptr) {
+			cout << "Cannot delete from an empty list." << endl;
+		}
+
+		struct student* deleteNode = head, * prev = nullptr;
 
 		while (deleteNode != nullptr) {
-			if (deleteNode->student_id == id) {
+			if (deleteNode->id == id) {
 				break;
 			}
 			prev = deleteNode;
-			deleteNode = deleteNode->next; // if next loop is actual node being deleted, the previous loop have to locate it using deleteNode->next
+			deleteNode = deleteNode->next; // deleteNode will be tail at the end of the loop
 		}
 
-		if (deleteNode == nullptr) {
+		if (deleteNode == nullptr) { // reach end of list without finding the id
 			cout << "Student id, " << id << " is not found." << endl;
-			return deleteNode;
 		}
 		else {
-			prev->next = deleteNode->next;
-			deleteNode->next = nullptr;
+			if (deleteNode == head) {
+				head = head->next;
+
+				if (deleteNode == tail) { // if one node
+					tail = nullptr;
+				}
+			}
+			else if (deleteNode == tail) {
+				tail = prev;
+				tail->next = nullptr;
+			}
+			else {
+				prev->next = deleteNode->next;
+			}
 			nodeCount--;
+			delete deleteNode;
 		}
-		prev = nullptr;
-		return deleteNode;
 	}
 
 	struct student* deleteIndex(int index) {
@@ -157,94 +184,172 @@ public:
 				prev->next = deleteNode->next;
 				deleteNode->next = nullptr;
 			}
+			nodeCount--;
 			return deleteNode;
 		}
 		return nullptr;
 	}
 
-	struct student* searchID(int id) {
+	struct student* linearSearch(string id) {
 		struct student* trav = head;
 
 		while (trav != nullptr) {
-			if (trav->student_id == id) {
+
+			if (trav->id == id) {
 				return trav;
 			}
+
 			trav = trav->next;
 		}
+
 		return nullptr;
 	}
 
-	void display() {
+	void displayAllStudents() {
 		struct student* trav = head;
-
-		cout << "head -> ";
+		int count = 0;
+		cout << string(112, '=') << endl;
+		cout << "| ";
+		cout << left << setw(3) << "No.";
+		cout << " | ";
+		cout << left << setw(10) << "Student ID";
+		cout << " | ";
+		cout << left << setw(30) << "Full Name";
+		cout << " | ";
+		cout << left << setw(14) << "Programme Code";
+		cout << " | ";
+		cout << left << setw(13) << "Year of Study";
+		cout << " | ";
+		cout << left << setw(6) << "CGPA";
+		cout << " | ";
+		cout << left << setw(14) << "Contact Number";
+		cout << " |";
+		cout << endl;
+		cout << string(112, '=') << endl;
 		while (trav != nullptr) {
-			cout << trav->student_id << "(" + trav->name + ", " << trav->age << ") " << " -> ";
+			cout << "| ";
+			cout << left << setw(3) << ++count;
+			cout << " | ";
+			cout << left << setw(10) << trav->id;
+			cout << " | ";
+			cout << left << setw(30) << trav->fullName;
+			cout << " | ";
+			cout << left << setw(14) << trav->programmeCode;
+			cout << " | ";
+			cout << left << setw(13) << trav->yearOfStudy;
+			cout << " | ";
+			cout << left << setw(6) << trav->cgpa;
+			cout << " | ";
+			cout << left << setw(14) << trav->contactNum;
+			cout << " |";
+			cout << endl;
 			trav = trav->next;
 		}
-		cout << "null" << endl;
+		cout << string(112, '=') << endl;
 	}
 };
 
 int menu();
 
-int main() {
-	Student students;
-	int choice, id, age;
-	string name;
-	do {
-		choice = menu();
+void loadStudentDataFromCSV(Student* students, string fileName);
 
-		switch (choice) {
-		case 1:
-			cout << "Enter new student's id: ";
-			cin >> id;
-			cout << "Enter new student's name: ";
-			cin >> name;
-			cout << "Enter new student's age: ";
-			cin >> age;
-			students.insertFront(id, name, age);
-			break;
-		case 2:
-			cout << "Enter new student's id: ";
-			cin >> id;
-			cout << "Enter new student's name: ";
-			cin >> name;
-			cout << "Enter new student's age: ";
-			cin >> age;
-			students.insertRear(id, name, age);
-			break;
-		case 3:
-			students.deleteFront();
-			break;
-		case 4:
-			students.deleteRear();
-			break;
-		case 5:
-			cout << "Enter student's id: ";
-			cin >> id;
-			students.deleteId(id);
-			break;
-		case 6:
-			cout << "Enter student's id: ";
-			cin >> id;
-			students.deleteIndex(id);
-			break;
-		case 7:
-			students.display();
-			break;
-		case 9:
-			return 0;
-			break;
-		default:
-			cout << "Invalid input." << endl;
-		}
-	} while (choice != 9);
+void loadStudentDataFromCSV(Student* students, string fileName) {
+	ifstream file(fileName);
+
+	if (!file.is_open())
+	{
+		cout << "Failed to open \"" << fileName << "\"" << endl;
+		return;
+	}
+
+	string line;
+	getline(file, line); //skip first row (header) of csv
+
+	while (getline(file, line))
+	{
+		stringstream ss(line);
+
+		string studentId, fullName, programmeCode, yearOfStudyStr, cgpaStr, contactNum;
+
+		getline(ss, studentId, ',');
+		getline(ss, fullName, ',');
+		getline(ss, programmeCode, ',');
+		getline(ss, yearOfStudyStr, ',');
+		getline(ss, cgpaStr, ',');
+		getline(ss, contactNum, ',');
+
+		int yearOfStudy = stoi(yearOfStudyStr);
+		double cgpa = stod(cgpaStr);
+
+		students->insertRear(studentId, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
+	}
+
+	file.close();
+}
+
+int main() {
+	Student* students = new Student();
+	string fileName = "Datasets\\students_500.csv";
+	loadStudentDataFromCSV(students, fileName);
+
+	cout << "Number of students loaded from CSV: ";
+	cout << students->printNodeCount();
+	cout << endl;
+
+	students->displayAllStudents();
+	//do {
+	//	choice = menu();
+
+	//	switch (choice) {
+	//	case 1:
+	//		cout << "Enter new student's id: ";
+	//		cin >> id;
+	//		cout << "Enter new student's name: ";
+	//		cin >> name;
+	//		cout << "Enter new student's age: ";
+	//		cin >> age;
+	//		students.insertFront(id, name, age);
+	//		break;
+	//	case 2:
+	//		cout << "Enter new student's id: ";
+	//		cin >> id;
+	//		cout << "Enter new student's name: ";
+	//		cin >> name;
+	//		cout << "Enter new student's age: ";
+	//		cin >> age;
+	//		students.insertRear(id, name, age);
+	//		break;
+	//	case 3:
+	//		students.deleteFront();
+	//		break;
+	//	case 4:
+	//		students.deleteRear();
+	//		break;
+	//	case 5:
+	//		cout << "Enter student's id: ";
+	//		cin >> id;
+	//		students.deleteId(id);
+	//		break;
+	//	case 6:
+	//		cout << "Enter student's id: ";
+	//		cin >> id;
+	//		students.deleteIndex(id);
+	//		break;
+	//	case 7:
+	//		students.displayAllStudents();
+	//		break;
+	//	case 9:
+	//		return 0;
+	//		break;
+	//	default:
+	//		cout << "Invalid input." << endl;
+	//	}
+	//} while (choice != 9);
 }
 
 int menu() {
 	int choice;
-	cout << "Welcome to Week 8 Lab 20" << endl;
+	cout << "Student Records Management" << endl;
 	cout << "1. Add new data to front of list" << endl;
 	cout << "2. Add new data to end of list" << endl;
 	cout << "3. Delete front data" << endl;
