@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <regex>
 using namespace std;
 
 struct student {
@@ -91,6 +92,21 @@ public:
 		}
 		cout << string(149, '=') << endl;
 	}
+
+	struct programme* linearSearch(string id) {
+		struct programme* trav = head;
+
+		while (trav != nullptr) {
+
+			if (trav->programmeCode == id) {
+				return trav;
+			}
+
+			trav = trav->next;
+		}
+
+		return nullptr;
+	}
 };
 
 class Student {
@@ -110,6 +126,10 @@ public:
 
 	void displayNodeCount() {
 		cout << "Number of nodes: " << nodeCount << endl;
+	}
+
+	struct student* getHead() {
+		return head;
 	}
 
 	void insertFront(string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
@@ -140,10 +160,10 @@ public:
 		newNode = nullptr;
 	}
 
-	void insertByIndex(int index, string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
-		if (index < 0 || index > nodeCount - 1) {
-			cout << "Index out of bound" << endl;
-			return;
+	struct student* insertByIndex(int index, string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
+		if (index < 0 || index > nodeCount) {
+			cout << "Index out of bound." << endl;
+			return nullptr;
 		}
 
 		struct student* newNode = new student(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
@@ -152,7 +172,7 @@ public:
 			newNode->next = head;
 			head = newNode;
 		}
-		else if (index == nodeCount - 1) {
+		else if (index == nodeCount) {
 			newNode->next = nullptr;
 			tail->next = newNode;
 			tail = newNode;
@@ -169,6 +189,7 @@ public:
 			prev->next = newNode;
 			newNode->next = after;
 		}
+		return newNode;
 	}
 
 	void deleteFront() {
@@ -264,10 +285,10 @@ public:
 
 	void deleteByIndex(int index) {
 		if (nodeCount <= 0) {
-			cout << "Cannot delete from an empty list" << endl;
+			cout << "Cannot delete from an empty list." << endl;
 		}
 		else if (index < 0 || index > nodeCount - 1) {
-			cout << "Index out of bound" << endl;
+			cout << "Index out of bound." << endl;
 		}
 		else {
 			struct student* deleteNode = head, * prev = nullptr;
@@ -369,6 +390,76 @@ public:
 		}
 		cout << string(112, '=') << endl;
 	}
+
+	student* mergeSort(student* head, bool asc) {
+		if (!head || !head->next) {
+			return head; // 0 or 1 element already sorted
+		}
+
+		student* left;
+		student* right;
+
+		split(head, &left, &right);
+
+		left = mergeSort(left, asc);
+		right = mergeSort(right, asc);
+
+		return merge(left, right, asc);
+	}
+
+	void split(student* head, student** left, student** right) {
+		student* slow = head;
+		student* fast = head->next;
+
+		// fast moves 2 steps, slow moves 1 step
+		while (fast && fast->next) {
+			slow = slow->next;
+			fast = fast->next->next;
+		}
+
+		*left = head;
+		*right = slow->next;
+		slow->next = nullptr;
+	}
+
+	student* merge(student* left, student* right, bool asc) {
+		if (!left) return right;
+		if (!right) return left;
+
+		student* result = nullptr;
+
+		if (asc) {
+			if (left->cgpa <= right->cgpa) {
+				result = left;
+				result->next = merge(left->next, right, asc);
+			}
+			else {
+				result = right;
+				result->next = merge(left, right->next, asc);
+			}
+		} else {
+			if (left->cgpa >= right->cgpa) {
+				result = left;
+				result->next = merge(left->next, right, asc);
+			}
+			else {
+				result = right;
+				result->next = merge(left, right->next, asc);
+			}
+		}
+		return result;
+	}
+
+
+	// Public wrapper to sort the list by CGPA and update head/tail
+	void sortByCGPA(bool asc) {
+		head = mergeSort(head, asc);
+		// update tail to the last node after sorting
+		tail = head;
+		while (tail && tail->next) {
+			tail = tail->next;
+		}
+	}
 };
 
 void loadStudentDataFromCSV(Student* students, string fileName) {
@@ -438,8 +529,12 @@ int insertMenu();
 int deleteMenu();
 int sortMenu();
 int displayMenu();
+bool promptStudentData(string& id, string& fullName, string& programmeCode, int& yearOfStudy, double& cgpa, string& contactNum, Student* students, Programme* programmes);
 void loadStudentDataFromCSV(Student* students, string fileName);
 void loadProgrammeDataFromCSV(Programme* programmes, string fileName);
+bool isValidContactNum(string& contactNum);
+bool isValidId(string& studentId);
+bool isValidProgrammeCode(string& programmeCode);
 
 int main() {
 	Student* students = new Student();
@@ -462,52 +557,69 @@ int main() {
 		choice = mainMenu();
 
 		switch (choice) {
-		case 1: {
+		case 1:
 			// FOR INSERT
-
 			do {
 				subchoice = insertMenu();
+				bool success;
 
-				if (subchoice < 1 || subchoice > 4) {
-					cout << "Invalid Input" << endl;
+				switch (subchoice) {
+				case 1:
+					success = promptStudentData(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum, students, programmes);
+					if (success) {
+						students->insertFront(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
+						cout << "Student with ID \'" << id << "\' is inserted." << endl;
+					}
+					break;
+				case 2:
+
+					success = promptStudentData(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum, students, programmes);
+					if (success) {
+
+						while (true) {
+							cout << "Enter Index Position of New Student (type -1 to cancel): ";
+
+							if (!(cin >> index)) {
+								cout << "Invalid Input.\n";
+								cin.clear();
+								cin.ignore(numeric_limits<streamsize>::max(), '\n');
+								continue;
+							}
+
+							if (index < -1) {
+								cout << "Invalid Index.\n";
+								continue;
+							}
+
+							if (index == -1) {
+								break;
+							}
+							else {
+								struct student* newStudent = students->insertByIndex(index, id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
+								if (newStudent != nullptr) {
+									cout << "Student with ID \'" << id << "\' is inserted." << endl;
+									break;
+								}
+							}
+						}
+					}
+					break;
+				case 3:
+					success = promptStudentData(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum, students, programmes);
+					if (success) {
+						students->insertRear(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
+						cout << "Student with ID \'" << id << "\' is inserted." << endl;
+					}
+					break;
+				case 4:
+					cout << "Back to Main Menu" << endl;
+					break;
+				default:
+					cout << "Invalid Input. Please enter numbers from 1 - 4." << endl;
+					break;
 				}
-			} while (subchoice < 1 || subchoice > 4);
-
-			cout << "Enter Student ID: ";
-			cin >> id;
-			cout << "Enter Student Full Name: ";
-			cin >> fullName;
-			cout << "Enter Student Programme Code: ";
-			cin >> programmeCode;
-			cout << "Enter Student Contact Number: ";
-			cin >> contactNum;
-			cout << "Enter Student Year of Study: ";
-			cin >> yearOfStudy;
-			cout << "Enter Student CGPA: ";
-			cin >> cgpa;
-
-			switch (subchoice) {
-			case 1:
-				students->insertFront(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
-				break;
-			case 2:
-				cout << "Enter Index Position of New Student: ";
-				cin >> index;
-				students->insertByIndex(index, id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
-				break;
-			case 3:
-				students->insertRear(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
-				break;
-			case 4:
-				cout << "Back to Main Menu" << endl;
-				break;
-			default:
-				cout << "Invalid Input" << endl;
-				break;
-			}
-			cout << "Student with ID \'" << id << "\' is inserted." << endl;
+			} while (subchoice != 4);
 			break;
-		}
 		case 2:
 			//FOR DELETE
 			do {
@@ -520,32 +632,74 @@ int main() {
 					students->deleteRear();
 					break;
 				case 3:
-					cout << "Enter Student ID to delete: ";
+					cout << "Enter Student ID to Delete (type 0 to cancel): ";
 					cin >> id;
-					students->deleteById(id);
+					if (id != "0") {
+						students->deleteById(id);
+					}
 					break;
 				case 4:
-					cout << "Enter Index Position of Student to delete: ";
-					cin >> index;
-					students->deleteByIndex(index);
+					while (true) {
+						cout << "Enter Index Position of Student to Delete (type -1 to cancel): ";
+
+						if (!(cin >> index)) {
+							cout << "Invalid Input.\n";
+							cin.clear();
+							cin.ignore(numeric_limits<streamsize>::max(), '\n');
+							continue;
+						}
+
+						if (index < -1) {
+							cout << "Invalid Index.\n";
+							continue;
+						}
+
+
+						if (index != -1) {
+							students->deleteByIndex(index);
+						}
+
+						break;
+
+					}
 					break;
 				case 5:
 					cout << "Back to Main Menu" << endl;
 					break;
 				default:
-					cout << "Invalid Input" << endl;
+					cout << "Invalid Input. Please enter numbers from 1 - 5." << endl;
 					break;
 				}
-			} while (subchoice < 1 || subchoice > 5);
+			} while (subchoice != 5);
 			break;
 		case 3:
 			do {
 				subchoice = sortMenu();
+
+				switch (subchoice) {
+				case 1:
+					students->sortByCGPA(true);
+					students->displayAllStudents();
+					break;
+				case 2:
+					students->sortByCGPA(false);
+					students->displayAllStudents();
+					break;
+				case 3:
+					cout << "Back to Main Menu" << endl;
+					break;
+				default:
+					cout << "Invalid Input. Please enter numbers from 1 - 3." << endl;
+					break;
+				}
 			} while (subchoice != 3);
 			break;
 		case 4: {
-			cout << "Enter Student ID to Search: ";
+			cout << "Enter Student ID to Search (type 0 to cancel): ";
 			cin >> id;
+			if (id == "0") {
+				break;
+			}
 			struct student* student = students->linearSearch(id);
 
 			if (student != nullptr) {
@@ -564,30 +718,30 @@ int main() {
 
 				switch (subchoice) {
 				case 1:
-					cout << endl << "Student Records" << endl;
+					cout << endl << "Student Records: " << endl;
 					students->displayAllStudents();
 					break;
 				case 2:
 					cout << endl << "Number of Students: " << students->getNodeCount() << endl;
 					break;
 				case 3:
-					cout << endl << "Programme Records" << endl;
+					cout << endl << "Programme Records: " << endl;
 					programmes->displayAllProgrammes();
 					break;
 				case 4:
 					cout << "Back to Main Menu" << endl;
 					break;
 				default:
-					cout << "Invalid Input" << endl;
+					cout << "Invalid Input. Please enter numbers from 1 - 4." << endl;
 					break;
 				}
-			} while (subchoice < 1 || subchoice > 4);
+			} while (subchoice != 4);
 			break;
 		case 6:
 			return 0;
 			break;
 		default:
-			cout << "Invalid input." << endl;
+			cout << "Invalid input. Please enter numbers from 1 - 6." << endl;
 		}
 		cout << endl;
 	} while (choice != 9);
@@ -607,12 +761,21 @@ int mainMenu() {
 		cout << "Enter choice: ";
 
 		if (cin >> choice) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
 			return choice;
 		}
 
 		cout << "Invalid input. Please enter a number." << endl;
 
-		cin.clear(); // Clear fail state
+		cin.clear(); // clear fail state
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	}
 }
@@ -624,9 +787,27 @@ int insertMenu() {
 	cout << "2. Insert Middle - Add new data to the middle of the list using index position" << endl;
 	cout << "3. Insert Rear - Add new data to the end of list" << endl;
 	cout << "4. Back" << endl;
-	cout << "Enter choice: ";
-	cin >> subchoice;
-	return subchoice;
+	while (true) {
+		cout << "Enter choice: ";
+
+		if (cin >> subchoice) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
+			return subchoice;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
 }
 
 int deleteMenu() {
@@ -637,9 +818,27 @@ int deleteMenu() {
 	cout << "3. Delete by Student ID - Delete specific data by student ID" << endl;
 	cout << "4. Delete by Index - Delete specific data by its index position in the list" << endl;
 	cout << "5. Back" << endl;
-	cout << "Enter choice: ";
-	cin >> subchoice;
-	return subchoice;
+	while (true) {
+		cout << "Enter choice: ";
+
+		if (cin >> subchoice) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
+			return subchoice;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
 }	
 
 int sortMenu() {
@@ -648,9 +847,27 @@ int sortMenu() {
 	cout << "1. Sort Ascending" << endl;
 	cout << "2. Sort Descending" << endl;
 	cout << "3. Back" << endl;
-	cout << "Enter choice: ";
-	cin >> subchoice;
-	return subchoice;
+	while (true) {
+		cout << "Enter choice: ";
+
+		if (cin >> subchoice) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
+			return subchoice;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
 }
 
 int displayMenu() {
@@ -660,7 +877,150 @@ int displayMenu() {
 	cout << "2. Display Student Count" << endl;
 	cout << "3. Display Programmes" << endl;
 	cout << "4. Back" << endl;
-	cout << "Enter choice: ";
-	cin >> subchoice;
-	return subchoice;
+	while (true) {
+		cout << "Enter choice: ";
+
+		if (cin >> subchoice) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
+			return subchoice;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
+}
+
+bool promptStudentData(string& id, string& fullName, string& programmeCode, int& yearOfStudy, double& cgpa, string& contactNum, Student* students, Programme* programmes) {
+	while (true) {
+		cout << "Enter Student ID - e.g. TP123456 (type 0 to cancel): ";
+		cin >> id;
+		if (id == "0") {
+			return false;
+		}
+		else if (!isValidId(id)) {
+			cout << "Invalid input. Please enter a valid student ID." << endl;
+			continue;
+		}
+		else if (students->linearSearch(id) != nullptr) {
+			cout << "Duplicate student ID. Please enter a different ID." << endl;
+			continue;
+		}
+		break;
+	}
+
+	while (true) {
+		cout << "Enter Full Name (type 0 to cancel): ";
+		cin.ignore();
+		getline(cin, fullName);
+		if (fullName == "0") {
+			return false;
+		}
+		else if (fullName.length() > 30) {
+			cout << "Invalid input. Full Name cannot be more than 30 characters." << endl;
+			continue;
+		}
+		break;
+	}
+
+	while (true) {
+		cout << "Enter Programme Code - e.g. CT101 (type 0 to cancel): ";
+		cin >> programmeCode;
+		if (programmeCode == "0") {
+			return false;
+		}
+		else if (programmes->linearSearch(programmeCode) == nullptr) {
+			cout << "Invalid programme code. Not found in the list of programmes." << endl;
+			continue;
+		}
+		break;
+	}
+
+	while (true) {
+		cout << "Enter Year of Study (type 0 to cancel): ";
+
+		if (cin >> yearOfStudy) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+
+			if (yearOfStudy == 0) {
+				return false;
+			}
+			break;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
+
+	while (true) {
+		cout << "Enter CGPA (type 0 to cancel): ";
+
+		if (cin >> cgpa) {
+			char extra;
+
+			if (cin.get(extra) && extra != '\n') {
+				cout << "Invalid input. Please enter a decimal number.\n";
+
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				continue;
+			}
+			if (cgpa < 0.0 || cgpa > 4.0) {
+				cout << "Invalid input. CGPA must be between 0.0 and 4.0." << endl;
+				continue;
+			}
+
+			if (cgpa == 0) {
+				return false;
+			}
+
+			break;
+		}
+
+		cout << "Invalid input. Please enter a number." << endl;
+
+		cin.clear(); // clear fail state
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
+
+	while (true) {
+		cout << "Enter Contact Number - e.g. 012-3456789 or 012-34567890 (type 0 to cancel): ";
+		cin >> contactNum;
+		if (contactNum == "0") {
+			return false;
+		}
+		else if (!isValidContactNum(contactNum)) {
+			cout << "Invalid input. Please enter a valid contact number." << endl;
+			continue;
+		}
+		break;
+	}
+	return true;
+}
+
+bool isValidContactNum(string& contactNum) {
+	regex pattern(R"(^\d{3}-\d{7,8}$)");
+	return regex_match(contactNum, pattern);
+}
+
+bool isValidId(string& id) {
+	regex pattern(R"(^TP\d{6}$)");
+	return regex_match(id, pattern);
 }
