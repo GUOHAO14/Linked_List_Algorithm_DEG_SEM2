@@ -190,7 +190,7 @@ public:
 			prev->next = newNode;
 			newNode->next = after;
 		}
-
+		nodeCount++;
 		return newNode;
 	}
 
@@ -428,28 +428,38 @@ public:
 		if (!left) return right;
 		if (!right) return left;
 
-		student* result = nullptr;
+		student dummy("", "", "", 0, 0.0, "");
+		student* tail = &dummy;
 
-		if (asc) {
-			if (left->cgpa <= right->cgpa) {
-				result = left;
-				result->next = merge(left->next, right, asc);
+		while (left && right)
+		{
+			bool takeLeft;
+
+			if (asc)
+				takeLeft = left->cgpa <= right->cgpa;
+			else
+				takeLeft = left->cgpa >= right->cgpa;
+
+			if (takeLeft)
+			{
+				tail->next = left;
+				left = left->next;
 			}
-			else {
-				result = right;
-				result->next = merge(left, right->next, asc);
+			else
+			{
+				tail->next = right;
+				right = right->next;
 			}
-		} else {
-			if (left->cgpa >= right->cgpa) {
-				result = left;
-				result->next = merge(left->next, right, asc);
-			}
-			else {
-				result = right;
-				result->next = merge(left, right->next, asc);
-			}
+
+			tail = tail->next;
 		}
-		return result;
+
+		if (left)
+			tail->next = left;
+		else
+			tail->next = right;
+
+		return dummy.next;
 	}
 
 
@@ -543,7 +553,8 @@ int main() {
 	Programme* programmes = new Programme();
 
 	auto start = chrono::high_resolution_clock::now();
-	string fileName = "Datasets\\students_500.csv";
+	string fileName = "Datasets\\students_8000.csv";
+	loadStudentDataFromCSV(students, fileName);
 	auto end = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
 
@@ -552,7 +563,6 @@ int main() {
 		<< " microseconds" << endl;
 
 	string fileName1 = "Datasets\\programmes.csv";
-	loadStudentDataFromCSV(students, fileName);
 	loadProgrammeDataFromCSV(programmes, fileName1);
 	cout << endl;
 
@@ -747,7 +757,9 @@ int main() {
 				switch (subchoice) {
 				case 1:
 					start = chrono::high_resolution_clock::now();
+					cout << "Started sorting." << endl;
 					students->sortByCGPA(true);
+					cout << "Finished sorting." << endl;
 					end = chrono::high_resolution_clock::now();
 
 					duration = chrono::duration_cast<chrono::microseconds>(end - start);
