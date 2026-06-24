@@ -864,7 +864,7 @@ int mainMenu() {
 	cout << "2. Delete Student Record" << endl;
 	cout << "3. Sort Student Records by CGPA" << endl;
 	cout << "4. Search Student Record (Linear Search)" << endl;
-	cout << "5. Display All Student Records" << endl;
+	cout << "5. Display Information" << endl;
 	cout << "6. Exit Program" << endl;
 
 	while (true) {
@@ -894,7 +894,7 @@ int insertMenu() {
 	int subchoice;
 	cout << endl << "Select Option to Add New Student Record:" << endl;
 	cout << "1. Insert Front - Add new data to the front of list" << endl;
-	cout << "2. Insert Middle - Add new data to the middle of the list using index position" << endl;
+	cout << "2. Insert By Index (Middle) - Add new data to the middle of the list using index position" << endl;
 	cout << "3. Insert Rear - Add new data to the end of list" << endl;
 	cout << "4. Back" << endl;
 	while (true) {
@@ -1011,6 +1011,7 @@ int displayMenu() {
 }
 
 bool promptStudentData(string& id, string& fullName, string& programmeCode, int& yearOfStudy, double& cgpa, string& contactNum, Student* students, Programme* programmes) {
+	struct programme* programme = nullptr;
 	while (true) {
 		cout << "Enter Student ID - e.g. TP123456 (type 0 to cancel): ";
 		cin >> id;
@@ -1048,7 +1049,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 		if (programmeCode == "0") {
 			return false;
 		}
-		else if (programmes->linearSearch(programmeCode) == nullptr) {
+		else if ((programme = programmes->linearSearch(programmeCode)) == nullptr) {
 			cout << "Invalid programme code. Not found in the list of programmes." << endl;
 			continue;
 		}
@@ -1056,7 +1057,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 	}
 
 	while (true) {
-		cout << "Enter Year of Study (type 0 to cancel): ";
+		cout << "Enter Year of Study (type -1 to cancel): ";
 
 		if (cin >> yearOfStudy) {
 			char extra;
@@ -1068,9 +1069,15 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 				continue;
 			}
 
-			if (yearOfStudy == 0) {
+			if (yearOfStudy < 0 || yearOfStudy > programme->durationYears) {
+				cout << "Invalid Year of Study." << endl;
+				continue;
+			}
+
+			if (yearOfStudy == -1) {
 				return false;
 			}
+
 			break;
 		}
 
@@ -1092,8 +1099,8 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				continue;
 			}
-			if (cgpa < 0.0 || cgpa > 4.0) {
-				cout << "Invalid input. CGPA must be between 0.0 and 4.0." << endl;
+			if (cgpa < 1.0 || cgpa > 4.0) {
+				cout << "Invalid input. CGPA must be between 1.0 and 4.0." << endl;
 				continue;
 			}
 
