@@ -1,0 +1,72 @@
+---Individual Performance Record---
+
+Member Name / ID:    KHOO GUO HAO (TP076267)	  Part: [ ] Array     [/] Linked List
+
+Sorting Algorithm:   Merge Sort  	
+
+Searching Algorithm:   Linear Search  	
+
+Measurement Unit: Microseconds (μs) via C++ <chrono>	       Date Measured: 21/06/2026
+
+Performance Record Table:
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Operation            | n=500 (μs)   | n=2000 (μs)   | n=8000 (μs)   | n=30000 (μs)   | Big-O Time | Big-O Space | Notes
+---------------------|--------------|---------------|---------------|----------------|------------|-------------|---------------------------------------------
+Load All Students    | 15,975.33    | 61,155.67     | 230,217       | 829,512.67     | O(n)       | O(n)  	| avg of 3 loads (n amount of rear insertions)
+Add / Insert         | 15           | 14            | 16            | 15             | O(1)       | O(1)        | avg of 10 rear insertions
+Delete (ID)          | 351          | 589           | 752           | 1,937          | O(n)       | O(1)        | avg of 3 start, 3 middle & 3 end deletions
+Linear Search (ID)   | 55.22        | 222           | 713.67        | 2,483.33       | O(n)       | O(1)        | avg of 3 start, 3 middle & 3 end searches
+Merge Sort (CGPA)    | 4,589.67     | 20,838.67     | 80,866.67     | 319,546        | O(n log n) | O(log n)    | avg of 3 ascending sorts
+Display All Students | 1,225,087.67 | 5,045,169.67  | 19,634,082.33 | 71,918,881     | O(n)       | O(1)	| avg of 3 displays
+Count (LL only)      | 406 	    | 681  	    | 551	    | 751  	     | O(1)       | O(1) 	| avg of 3 counts
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Growth Ratio Analysis:
+-------------------------------------------------------------------------------------------------------------------------------
+Operation	  	   | Time at n=2,000 ÷ Time at n=500 = ? | Expected ratio if O(n²)=16× | O(n log n)=≈5× | O(n)=4×
+---------------------------|-------------------------------------|-------------------------------------------------------------
+Merge Sort (CGPA) 	   | 20838.67 ÷ 4589.67 = 4.54×		 |		≈5×
+Linear Search (Student ID) | 222 ÷ 55.22 = 4.02×		 |		4×
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+Key Observations / Justification of Big-O:
+
+1. Load All Students
+- Each student record is retrieved once from the specified CSV file and inserted into the linked list using the insertRear function. 
+- Runtime of loading data into the linked list (utilising Student class) increases proportionally with dataset size. In other words, when the student dataset increases from 500 to 2,000, 8,000, and 30,000 rows, the time required to load student data into the linked list is greater by approximately 4×, 16×, and 60×, respectively. 
+- Therefore, the time complexity is identified as O(n), which is a linear growth rate. 
+
+2. Add / Insert
+- The average time taken for a new node to be dynamically inserted and allocated at the end (rear) of the linked list is observed. 
+- Linked list implementation includes the use of a well-maintained tail pointer. Therefore, new node insertions occur in an almost constant rate, regardless of the size of the student dataset, n. 
+- Thus, the add/insert operation is O(1) due to the identical execution times across the board. 
+
+3. Delete by Student ID
+- The linked list must be traversed to locate the target nodes, which are at or near the end of the list. As the node count of the linked list increases, the program takes longer to traverse the list and reach the specified student ID. Such traversal is required because the doubly linked list concept is not implemented. Therefore, sequential traversal by the deleteByIndex function is to not only reach the node with the deleting student ID but also to identify the node previous to the deleting node to update its ‘next’ value/memory pointer and to update the tail pointer if the last node is being deleted.
+- The aforementioned traversal theoretically scales proportionally with the node count of the linked list or the dataset size. However, the time data recorded for four values of n does not reflect the expected linear growth rate. For example, the empirical time measurements for n = 500 and 2,000 are 351 μs and 589 μs, respectively, yielding a ratio of 1.68× and falling short of the 4.0× ratio. Several rechecks of data recorded are conducted, but no code bugs or misplaced chrono timers is present. Thus, since flaws in implementation are excluded from the cause, hardware overhead is most likely the reason for said phenomenon. 
+- It must be established that Big O notation deliberately abstracts away constant factors and lower-order terms and thus is only reliable as a predictor of proportional timing ratios when n is sufficiently large that these factors or terms become negligible (University of Wisconsin-Madison CS367, n.d.). At small dataset sizes, fixed overhead costs, including function call setup, edge-case branching, and heap memory deallocation via the ‘delete’ operation constitute a proportion of total measured time regardless of n. In particular, dynamic memory deallocation on the heap has been empirically measured to carry an average cost of approximately 2.5 µs per operation (Dawson, 2014), which inflates the baseline measurement at n = 500 disproportionately. This phenomenon is a well-documented limitation of empirical algorithm analysis, where constants and lower-order terms suppress the expected scaling ratio at bounded input sizes (GeeksforGeeks, 2026). 
+- Therefore, despite being nowhere close to a 4.0× ratio, the delete operation is still considered as having O(n) time complexity. 
+
+4. Search by Student ID (Linear Search)
+- Linked list nodes are traversed and examined sequentially until the target student is found based on the student ID. 
+- As mentioned in the Testing and Measurement Methodology subsection of Individual Implementation Section, linear search measures the average time taken to search for a student in the front, middle and end of the linked list. This is to represent accurately the mean time for searches by taking into account of the best and worst cases, which are visiting the head (first node) or visiting every node to reach the last node (tail). 
+- Time complexity of linear search when comparing executions of n = 500 and 2,000 shows a clear picture of O(n) with a 4.02× ratio. However, higher n values deviate from the expected linear ratio and execution time. For n = 8,000, the expected time taken is roughly 883.52 μs, but 713.67 μs is observed; for n = 30,000, expected time taken is approximately 3,313.67 μs, but 2483.33 μs is recorded.
+- This is likely due to the 3 front searches (best case), which are out of the 9 measurements conducted to find the average runtime. The 3 front searches stay constant with the same quick traversal for all n values, thus no increase in operation time even when n value varies. Student records in the middle and at the end scales in position relative to the dataset size, thus the increase in runtime and do not cause the issue that front searches did. Therefore, front searches significantly bring down the average execution time, distorting the final ratio, particularly for larger n values. Due to this particular reasoning, search growth rate across varying n values slightly deviates from the expected linear growth rate.
+- Therefore, the time complexity identified still remains as O(n), but acknowledging that front search is a limitation but also an assignment requirement. 
+
+5. Sort by CGPA (Merge Sort)
+- Merge Sort repeatedly divides the linked list into smaller halves and merges them in sorted order. This recursion continues until the sublist can no longer be halved.
+- The measured growth ratio (4.54×) is closer to O(n log n), compared to other time complexities like O(n) and O(n²). 
+- Therefore, merge sort supports O(n log n) time complexity. 
+
+6. Display All Students
+- Every node in the student linked list must be traversed and printed in a neat format using the <iomanip> header file. 
+- The sequential traversal and the need to print out more characters will therefore cause the runtime to grow proportionately with the number of records or n. 
+- Therefore, the operation is O(n). 
+
+7. Count
+- In implementation, a dedicated variable ‘nodeCount’ is used to store the number of nodes in the student linked list. Every time an insert or delete operation is carried out, the ‘nodeCount’ variable will also change (increment or decrement) to accurately track the number of nodes. 
+- No additional function is needed to carry out the node counting operation because the ‘nodeCount’ variable can be retrieved to obtain the node count value, regardless of the value of n. Thus, the time complexity is O(1).
+
