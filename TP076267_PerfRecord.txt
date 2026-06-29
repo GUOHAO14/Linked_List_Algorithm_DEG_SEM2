@@ -1,4 +1,4 @@
----Individual Performance Record---
+# Individual Performance Record
 
 Member Name / ID:    KHOO GUO HAO (TP076267)	  Part: [ ] Array     [/] Linked List
 
@@ -8,8 +8,8 @@ Searching Algorithm:   Linear Search
 
 Measurement Unit: Microseconds (μs) via C++ <chrono>	       Date Measured: 21/06/2026
 
-Performance Record Table:
---------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Performance Record Table:
+
 Operation            | n=500 (μs)   | n=2000 (μs)   | n=8000 (μs)   | n=30000 (μs)   | Big-O Time | Big-O Space | Notes
 ---------------------|--------------|---------------|---------------|----------------|------------|-------------|---------------------------------------------
 Load All Students    | 15,975.33    | 61,155.67     | 230,217       | 829,512.67     | O(n)       | O(n)  	| avg of 3 loads (n amount of rear insertions)
@@ -19,19 +19,17 @@ Linear Search (ID)   | 55.22        | 222           | 713.67        | 2,483.33  
 Merge Sort (CGPA)    | 4,589.67     | 20,838.67     | 80,866.67     | 319,546        | O(n log n) | O(log n)    | avg of 3 ascending sorts
 Display All Students | 1,225,087.67 | 5,045,169.67  | 19,634,082.33 | 71,918,881     | O(n)       | O(1)	| avg of 3 displays
 Count (LL only)      | 406 	    | 681  	    | 551	    | 751  	     | O(1)       | O(1) 	| avg of 3 counts
---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-Growth Ratio Analysis:
--------------------------------------------------------------------------------------------------------------------------------
+## Growth Ratio Analysis:
+
 Operation	  	   | Time at n=2,000 ÷ Time at n=500 = ? | Expected ratio if O(n²)=16× | O(n log n)=≈5× | O(n)=4×
 ---------------------------|-------------------------------------|-------------------------------------------------------------
 Merge Sort (CGPA) 	   | 20838.67 ÷ 4589.67 = 4.54×		 |		≈5×
 Linear Search (Student ID) | 222 ÷ 55.22 = 4.02×		 |		4×
--------------------------------------------------------------------------------------------------------------------------------
 
 
-Key Observations / Justification of Big-O:
+## Key Observations / Justification of Big-O:
 
 1. Load All Students
 - Each student record is retrieved once from the specified CSV file and inserted into the linked list using the insertRear function. 

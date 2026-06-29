@@ -15,7 +15,9 @@ int main() {
 	auto end = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
 
-	cout << "Time taken to load all student data: "
+	cout << "Time taken to load all student data from "
+		<< fileName
+		<< " : "
 		<< duration.count()
 		<< " microseconds" << endl;
 
