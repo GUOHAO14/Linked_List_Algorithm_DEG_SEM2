@@ -210,6 +210,7 @@ int main() {
 			} while (subchoice != 5);
 			break;
 		case 3:
+			// FOR MERGE SORT
 			do {
 				subchoice = sortMenu();
 
@@ -250,6 +251,7 @@ int main() {
 			} while (subchoice != 3);
 			break;
 		case 4: {
+			// FOR LINEAR SEARCH
 			cout << "Enter Student ID to Search (type 0 to cancel): ";
 			cin >> id;
 			if (id == "0") {
@@ -275,6 +277,7 @@ int main() {
 			break;
 		}
 		case 5:
+			// FOR DISPLAY INFO
 			do {
 				subchoice = displayMenu();
 

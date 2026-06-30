@@ -40,10 +40,6 @@ public:
 		cout << "Number of nodes: " << nodeCount << endl;
 	}
 
-	struct student* getHead() {
-		return head;
-	}
-
 	void insertFront(string id, string fullName, string programmeCode, int yearOfStudy, double cgpa, string contactNum) {
 		struct student* newNode = new student(id, fullName, programmeCode, yearOfStudy, cgpa, contactNum);
 
@@ -374,7 +370,7 @@ public:
 	}
 
 
-	// Public wrapper to sort the list by CGPA and update head/tail
+	// public wrapper to sort the list by CGPA and update head/tail
 	void sortByCGPA(bool asc) {
 		head = mergeSort(head, asc);
 		// update tail to the last node after sorting

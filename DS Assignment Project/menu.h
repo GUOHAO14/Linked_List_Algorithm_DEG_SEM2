@@ -147,7 +147,7 @@ int displayMenu() {
 
 			if (cin.get(extra) && extra != '\n') {
 				cout << "Invalid input. Please enter a number.\n";
-
+				`	
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				continue;
 			}
