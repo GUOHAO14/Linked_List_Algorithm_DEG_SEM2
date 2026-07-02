@@ -10,8 +10,10 @@ int main() {
 	Programme* programmes = new Programme();
 
 	auto start = chrono::high_resolution_clock::now();
+
 	string fileName = "Datasets\\students_500.csv";
 	loadStudentDataFromCSV(students, fileName);
+
 	auto end = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
 
@@ -154,7 +156,7 @@ int main() {
 					break;
 				case 3:
 					cout << "Enter Student ID to Delete (type 0 to cancel): ";
-					cin >> id;
+					getline(cin >> ws, id);
 					if (id != "0") {
 						start = chrono::high_resolution_clock::now();
 						students->deleteById(id);
@@ -253,7 +255,7 @@ int main() {
 		case 4: {
 			// FOR LINEAR SEARCH
 			cout << "Enter Student ID to Search (type 0 to cancel): ";
-			cin >> id;
+			getline(cin >> ws, id);
 			if (id == "0") {
 				break;
 			}

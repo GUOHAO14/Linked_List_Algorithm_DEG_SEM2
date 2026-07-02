@@ -8,6 +8,14 @@ struct programme {
 	string programmeCode, programmeName, faculty;
 	int durationYears;
 	struct programme* next;
+
+	programme(string programmeCode, string programmeName, string faculty, int durationYears) {
+		this->programmeCode = programmeCode;
+		this->programmeName = programmeName;
+		this->faculty = faculty;
+		this->durationYears = durationYears;
+		next = nullptr;
+	}
 };
 
 class Programme {

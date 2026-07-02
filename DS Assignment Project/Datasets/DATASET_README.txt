@@ -137,20 +137,20 @@ EDGE CASES TO TEST (use these in addition to normal records):
   - Insert 1 record, then delete it, then display (tests empty-after-delete)
 
 ====================================================
-YOUR INDIVIDUAL PERFORMANCE RECORD TABLE FORMAT
+INDIVIDUAL PERFORMANCE RECORD TABLE FORMAT
 ====================================================
 Fill in actual measured times at each n. Leave N/A where operation
 does not apply to your implementation type.
 
-Operation       | n=500 | n=2000 | n=8000 | n=30000 | Big-O  | Justification
-----------------|-------|--------|--------|---------|--------|---------------
-Add/Insert      |       |        |        |         |        |
-Delete          |       |        |        |         |        |
-Linear Search   |       |        |        |         |        |
-Binary Search   |       |        |   N/A  |   N/A   |        | (sort first)
-Sort (CGPA)     |       |        |        |         |        |
-Display All     |       |        |        |         |        |
-Count (LL only) |  N/A  |  N/A   |  N/A   |   N/A   |        |
+Operation            | n=500 (μs)   | n=2000 (μs)   | n=8000 (μs)   | n=30000 (μs)   | Big-O Time | Big-O Space | Notes/Justification
+---------------------|--------------|---------------|---------------|----------------|------------|-------------|---------------------------------------------
+Load All Students    | 15,975.33    | 61,155.67     | 230,217       | 829,512.67     | O(n)       | O(n)  	| avg of 3 loads (n amount of rear insertions)
+Add / Insert         | 15           | 14            | 16            | 15             | O(1)       | O(1)        | avg of 10 rear insertions using tail
+Delete (ID)          | 351          | 589           | 752           | 1,937          | O(n)       | O(1)        | avg of 3 start, 3 middle & 3 end deletions
+Linear Search (ID)   | 55.22        | 222           | 713.67        | 2,483.33       | O(n)       | O(1)        | avg of 3 start, 3 middle & 3 end searches
+Merge Sort (CGPA)    | 4,589.67     | 20,838.67     | 80,866.67     | 319,546        | O(n log n) | O(log n)    | avg of 3 ascending merge sorts
+Display All Students | 1,225,087.67 | 5,045,169.67  | 19,634,082.33 | 71,918,881     | O(n)       | O(1)	| avg of 3 displays
+Count (LL only)      | 406 	    | 681  	    | 551	    | 751  	     | O(1)       | O(1) 	| avg of 3 retrievals of nodeCount variable
 
 In your report's cross-member comparison section, all 4 members
 paste their completed tables — the group then discusses WHY times

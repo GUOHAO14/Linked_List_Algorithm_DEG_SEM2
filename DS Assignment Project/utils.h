@@ -80,7 +80,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 	struct programme* programme = nullptr;
 	while (true) {
 		cout << "Enter Student ID - e.g. TP123456 (type 0 to cancel): ";
-		cin >> id;
+		getline(cin, id);
 		if (id == "0") {
 			return false;
 		}
@@ -97,8 +97,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 
 	while (true) {
 		cout << "Enter Full Name (type 0 to cancel): ";
-		cin.ignore();
-		getline(cin, fullName);
+		getline(cin >> ws, fullName);
 		if (fullName == "0") {
 			return false;
 		}
@@ -111,7 +110,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 
 	while (true) {
 		cout << "Enter Programme Code - e.g. CT101 (type 0 to cancel): ";
-		cin >> programmeCode;
+		getline(cin >> ws, programmeCode);
 		if (programmeCode == "0") {
 			return false;
 		}
@@ -185,7 +184,7 @@ bool promptStudentData(string& id, string& fullName, string& programmeCode, int&
 
 	while (true) {
 		cout << "Enter Contact Number - e.g. 012-3456789 or 012-34567890 (type 0 to cancel): ";
-		cin >> contactNum;
+		getline(cin >> ws, contactNum);
 		if (contactNum == "0") {
 			return false;
 		}
