@@ -56,7 +56,7 @@ To switch between student dataset files for different dataset sizes, follow thes
 1. Open 'main.cpp'.
 2. Locate this line near the top of 'main()' function (specifically line 14):
 
-string fileName = "Datasets\\students_500.csv";
+    string fileName = "Datasets\\students_500.csv";
 
 
 3. The 'Datasets\\' part of the string is remained and only replace the file name portion 'students_500.csv' with the desired dataset file:
