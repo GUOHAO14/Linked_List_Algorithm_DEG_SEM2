@@ -1,5 +1,6 @@
-# Student Record Management System - Setup Guide
+# Info below is created for submission purpose, however it sums up this repo perfectly (a CLI program to showcase the effective utilisation of linked list)
 
+# Student Record Management System - Setup Guide
 ## Project Overview & Structure
 
 This is a Linked List-based Student Record Management System written in C++. 
