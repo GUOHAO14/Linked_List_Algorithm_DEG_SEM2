@@ -6,7 +6,7 @@
 This is a Linked List-based Student Record Management System written in C++. 
 Ensure project folder is organised as follows before compiling:
 
-
+```
 project/
 |-- DS Assignment Project.slnx
 |-- DS Assignment Project
@@ -25,7 +25,7 @@ project/
 |-- TP076267_PerfRecord.txt
 |-- README.txt
 
-
+```
 
 Important: The 'Datasets' folder must be in the same directory as your compiled executable, otherwise the program will fail to load any data.
 
